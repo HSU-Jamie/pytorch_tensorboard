@@ -126,12 +126,12 @@ def train(epoch):
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.data[0] )
+                100. * batch_idx / len(train_loader), loss.item() )
             )
 
             # Log train/loss to TensorBoard at every iteration
             n_iter = (epoch - 1) * len(train_loader) + batch_idx + 1
-            writer.add_scalar('train/loss', loss.data[0], n_iter)
+            writer.add_scalar('train/loss', loss.item(), n_iter)
 
     # Log model parameters to TensorBoard at every epoch
     for name, param in model.named_parameters():
@@ -151,7 +151,7 @@ def test(epoch):
         data, target = Variable(data, volatile=True), Variable(target)
 
         output = model(data)
-        test_loss += F.nll_loss(output, target, size_average=False).data[0] # sum up batch loss (later, averaged over all test samples)
+        test_loss += F.nll_loss(output, target, size_average=False).item() # sum up batch loss (later, averaged over all test samples)
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
@@ -172,7 +172,7 @@ input_tensor = torch.Tensor(1,1,28,28)
 if args.cuda:
     input_tensor = input_tensor.cuda()
 res = model(Variable(input_tensor, requires_grad=True))
-writer.add_graph(model, lastVar=res)
+# writer.add_graph(model, lastVar=res)
 
 
 # Start training
